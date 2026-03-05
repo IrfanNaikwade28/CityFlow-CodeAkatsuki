@@ -117,3 +117,27 @@ def worker_detail(request, pk):
         'joined_date': w.joined_date,
         **stats,
     })
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def change_password(request):
+    """Change the authenticated user's password.
+    Body: { current_password, new_password }
+    """
+    current = request.data.get('current_password', '')
+    new_pass = request.data.get('new_password', '')
+
+    if not current or not new_pass:
+        return Response({'detail': 'current_password and new_password are required.'}, status=400)
+
+    if not request.user.check_password(current):
+        return Response({'detail': 'Current password is incorrect.'}, status=400)
+
+    if len(new_pass) < 4:
+        return Response({'detail': 'New password must be at least 4 characters.'}, status=400)
+
+    request.user.set_password(new_pass)
+    request.user.save()
+    return Response({'detail': 'Password changed successfully.'})
+
