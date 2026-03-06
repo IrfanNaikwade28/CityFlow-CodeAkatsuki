@@ -5,7 +5,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .serializers import RegisterSerializer, LoginSerializer, UserSerializer
+from .serializers import RegisterSerializer, LoginSerializer, UserSerializer, UpdateProfileSerializer
 
 User = get_user_model()
 
@@ -26,7 +26,7 @@ def register(request):
         user = serializer.save()
         tokens = get_tokens_for_user(user)
         return Response({
-            'user': UserSerializer(user).data,
+            'user': UserSerializer(user, context={'request': request}).data,
             **tokens,
         }, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -40,7 +40,7 @@ def login(request):
         user = serializer.validated_data['user']  # type: ignore[index]
         tokens = get_tokens_for_user(user)
         return Response({
-            'user': UserSerializer(user).data,
+            'user': UserSerializer(user, context={'request': request}).data,
             **tokens,
         })
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -49,7 +49,7 @@ def login(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def me(request):
-    return Response(UserSerializer(request.user).data)
+    return Response(UserSerializer(request.user, context={'request': request}).data)
 
 
 @api_view(['GET'])
@@ -140,4 +140,37 @@ def change_password(request):
     request.user.set_password(new_pass)
     request.user.save()
     return Response({'detail': 'Password changed successfully.'})
+
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def update_profile(request):
+    """PATCH /auth/profile/ — update name, ward, gender, dob, street, landmark.
+    Phone is intentionally excluded and cannot be changed.
+    """
+    serializer = UpdateProfileSerializer(request.user, data=request.data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(UserSerializer(request.user, context={'request': request}).data)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def upload_profile_photo(request):
+    """Upload or replace the authenticated user's profile photo.
+    Body: multipart/form-data with field `photo`.
+    """
+    photo = request.FILES.get('photo')
+    if not photo:
+        return Response({'detail': 'No photo file provided.'}, status=400)
+
+    user = request.user
+    # Delete old file from storage if one exists
+    if user.profile_photo:
+        user.profile_photo.delete(save=False)
+
+    user.profile_photo = photo
+    user.save(update_fields=['profile_photo'])
+    return Response(UserSerializer(user, context={'request': request}).data)
 

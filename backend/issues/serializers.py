@@ -1,16 +1,92 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from .models import Issue, IssueComment, IssueTimeline
+import re
+
+try:
+    import pluscodes as _pluscodes
+    _PLUSCODES_AVAILABLE = True
+except ImportError:
+    _PLUSCODES_AVAILABLE = False
 
 User = get_user_model()
+
+# OLC short-code pattern: 2–8 uppercase chars, '+', 2–3 chars
+_SHORT_CODE_RE = re.compile(r'\b([23456789CFGHJMPQRVWX]{2,8}\+[23456789CFGHJMPQRVWX]{2,3})\b', re.I)
+_COORD_RE      = re.compile(r'([\d.]+)[°\s]*N[,\s]+([\d.]+)[°\s]*E', re.I)
+
+# City reference coordinates for short-code recovery
+_CITY_REFS = {
+    'ichalkaranji': (16.6925, 74.4191),
+    'rui':          (18.5000, 73.8000),
+    'pune':         (18.5204, 73.8567),
+    'kolhapur':     (16.7050, 74.2433),
+}
+_DEFAULT_REF = _CITY_REFS['ichalkaranji']
+
+
+def _recover_plus_code(short_code, ref_lat, ref_lng):
+    """Recover a short OLC Plus Code to lat/lng using a reference point."""
+    if not _PLUSCODES_AVAILABLE:
+        return None, None
+    try:
+        plus_idx = short_code.index('+')
+        prefix_len = plus_idx
+        ref_full = _pluscodes.encode(ref_lat, ref_lng, 8)
+        full_code = ref_full[:prefix_len] + short_code.upper()
+        area = _pluscodes.decode(full_code)
+        return (area.sw.lat + area.ne.lat) / 2, (area.sw.lon + area.ne.lon) / 2
+    except Exception:
+        return None, None
+
+
+def extract_coords_from_text(text):
+    """
+    Try to extract lat/lng from location_text.
+    1. Explicit coordinate string: "16.6925° N, 74.4191° E"
+    2. Plus Code short code: "MFJC+W82, Rajwada, Ichalkaranji"
+    Returns (lat, lng) or (None, None).
+    """
+    if not text:
+        return None, None
+
+    # 1. Coordinate string
+    m = _COORD_RE.search(text)
+    if m:
+        return float(m.group(1)), float(m.group(2))
+
+    # 2. Plus Code
+    m = _SHORT_CODE_RE.search(text)
+    if m:
+        code = m.group(1)
+        low = text.lower()
+        ref_lat, ref_lng = _DEFAULT_REF
+        for city, coords in _CITY_REFS.items():
+            if city in low:
+                ref_lat, ref_lng = coords
+                break
+        lat, lng = _recover_plus_code(code, ref_lat, ref_lng)
+        if lat is not None:
+            return lat, lng
+
+    return None, None
 
 
 class AuthorSerializer(serializers.ModelSerializer):
     name = serializers.CharField(source='full_name', read_only=True)
+    profile_photo_url = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ['id', 'display_id', 'name', 'role', 'ward']
+        fields = ['id', 'display_id', 'name', 'role', 'ward', 'profile_photo_url']
+
+    def get_profile_photo_url(self, obj):
+        if not obj.profile_photo:
+            return None
+        request = self.context.get('request')
+        if request:
+            return request.build_absolute_uri(obj.profile_photo.url)
+        return obj.profile_photo.url
 
 
 class IssueCommentSerializer(serializers.ModelSerializer):
@@ -91,3 +167,12 @@ class IssueCreateSerializer(serializers.ModelSerializer):
             'location_text', 'location_lat', 'location_lng',
             'is_public', 'image',
         ]
+
+    def create(self, validated_data):
+        # Auto-extract lat/lng from location_text if not explicitly provided
+        if validated_data.get('location_lat') is None:
+            lat, lng = extract_coords_from_text(validated_data.get('location_text', ''))
+            if lat is not None:
+                validated_data['location_lat'] = lat
+                validated_data['location_lng'] = lng
+        return super().create(validated_data)

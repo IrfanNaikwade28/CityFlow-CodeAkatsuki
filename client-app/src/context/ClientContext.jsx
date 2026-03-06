@@ -27,6 +27,7 @@ const normaliseIssue = (issue) => ({
   aiVerdict:       issue.ai_completion_verdict,
   reportedBy:      issue.reported_by,
   reporterName:    issue.reported_by_detail?.name || '',
+  reporterPhoto:   issue.reported_by_detail?.profile_photo_url || null,
   assignedTo:      issue.assigned_to_detail?.id || null,
   assignedToName:  issue.assigned_to_detail?.name || null,
   reportedAt:      issue.reported_at,
@@ -47,17 +48,24 @@ const normaliseIssue = (issue) => ({
 
 // Normalise backend user → UI user shape
 const normaliseUser = (data, tokens) => ({
-  type:       data.role,              // 'citizen' | 'worker' | 'admin'
-  id:         data.id,
-  displayId:  data.display_id,
-  name:       data.name,
-  email:      data.email,
-  phone:      data.phone || '',
-  ward:       data.ward || '',
-  category:   data.category || '',
-  joinedDate: data.joined_date,
-  access:     tokens?.access,
-  refresh:    tokens?.refresh,
+  type:         data.role,              // 'citizen' | 'worker' | 'admin'
+  id:           data.id,
+  displayId:    data.display_id,
+  name:         data.full_name || `${data.first_name || ''} ${data.last_name || ''}`.trim() || data.email,
+  firstName:    data.first_name || '',
+  lastName:     data.last_name  || '',
+  email:        data.email,
+  phone:        data.phone || '',
+  ward:         data.ward || '',
+  category:     data.category || '',
+  joinedDate:   data.joined_date,
+  profilePhoto: data.profile_photo_url || null,
+  gender:       data.gender   || '',
+  dob:          data.dob      || '',   // 'YYYY-MM-DD' or ''
+  street:       data.street   || '',
+  landmark:     data.landmark || '',
+  access:       tokens?.access,
+  refresh:      tokens?.refresh,
 });
 
 // ─── Provider ─────────────────────────────────────────────────────────────────
@@ -130,6 +138,28 @@ export function ClientProvider({ children }) {
     setUser(null);
     setComplaints([]);
     setMyTasks([]);
+  };
+
+  // ── Upload profile photo ──────────────────────────────────────────────────────
+  const uploadProfilePhoto = async (uri) => {
+    const filename = uri.split('/').pop();
+    const match    = /\.(\w+)$/.exec(filename);
+    const type     = match ? `image/${match[1].toLowerCase()}` : 'image/jpeg';
+
+    const form = new FormData();
+    form.append('photo', { uri, name: filename, type });
+
+    const { data } = await authAPI.uploadProfilePhoto(form);
+    setUser(prev => ({ ...prev, profilePhoto: data.profile_photo_url || null }));
+    return data.profile_photo_url || null;
+  };
+
+  // ── Update profile fields ─────────────────────────────────────────────────────
+  const updateProfile = async (fields) => {
+    // fields: { first_name, last_name, ward, gender, dob, street, landmark }
+    const { data } = await authAPI.updateProfile(fields);
+    setUser(prev => normaliseUser(data, { access: prev?.access, refresh: prev?.refresh }));
+    return data;
   };
 
   // ── Fetch citizen's own issues ────────────────────────────────────────────────
@@ -266,6 +296,8 @@ export function ClientProvider({ children }) {
       login,
       register,
       logout,
+      uploadProfilePhoto,
+      updateProfile,
       complaints,
       myComplaints,
       myTasks,

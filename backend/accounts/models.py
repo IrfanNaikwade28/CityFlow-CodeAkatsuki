@@ -24,6 +24,17 @@ class User(AbstractUser):
     category = models.CharField(max_length=30, choices=CATEGORY_CHOICES, blank=True)
     joined_date = models.DateField(default=timezone.localdate)
     display_id = models.CharField(max_length=10, blank=True)
+    profile_photo = models.ImageField(upload_to='profile_photos/', blank=True, null=True)
+
+    GENDER_CHOICES = [
+        ('Male', 'Male'),
+        ('Female', 'Female'),
+        ('Other', 'Other'),
+    ]
+    gender = models.CharField(max_length=10, choices=GENDER_CHOICES, blank=True)
+    dob = models.DateField(null=True, blank=True)
+    street = models.CharField(max_length=255, blank=True)
+    landmark = models.CharField(max_length=255, blank=True)
 
     def __str__(self):
         return f"{self.get_full_name() or self.username} ({self.role})"

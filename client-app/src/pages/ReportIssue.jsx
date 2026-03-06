@@ -81,7 +81,8 @@ export default function ReportIssue({ onBack, onSuccess }) {
       const id = await submitComplaint({
         ...form,
         image: capturedPhoto,
-        gpsLocation: capturedLocation,
+        lat: capturedLocation?.lat,
+        lng: capturedLocation?.lng,
       });
       onSuccess(id);
     } catch {

@@ -102,6 +102,7 @@ export default function CivicFeed({ onBack, readOnly = false }) {
           aiScore:         issue.ai_completion_score,
           aiVerdict:       issue.ai_completion_verdict,
           reporterName:    issue.reported_by_detail?.name || '',
+          reporterPhoto:   issue.reported_by_detail?.profile_photo_url || null,
           assignedTo:      issue.assigned_to_detail?.id   || null,
           assignedToName:  issue.assigned_to_detail?.name || null,
           reportedAt:      issue.reported_at,

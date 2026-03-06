@@ -91,6 +91,11 @@ export const authAPI = {
   refresh:        (token)           => api.post('/auth/token/refresh/', { refresh: token }),
   changePassword: (current_password, new_password) =>
     api.post('/auth/change-password/', { current_password, new_password }),
+  uploadProfilePhoto: (formData) =>
+    api.post('/auth/profile-photo/', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }),
+  updateProfile: (data) => api.patch('/auth/profile/', data),
 };
 
 // ─── Issues endpoints ────────────────────────────────────────────────────────

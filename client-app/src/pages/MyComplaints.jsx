@@ -111,7 +111,7 @@ export default function MyComplaints({ onBack, onDetail }) {
                 </View>
               )}
 
-              <View style={styles.cardBody}>
+                <View style={styles.cardBody}>
                 <View style={styles.cardRow}>
                   {!c.image && (
                     <View style={styles.iconBox}>
@@ -119,6 +119,7 @@ export default function MyComplaints({ onBack, onDetail }) {
                     </View>
                   )}
                   <View style={{ flex: 1 }}>
+                    <Text style={styles.cardTitle} numberOfLines={2}>{c.title}</Text>
                     <View style={styles.idRow}>
                       <Text style={styles.cardId}>{c.id}</Text>
                       {!c.image && (
@@ -127,10 +128,9 @@ export default function MyComplaints({ onBack, onDetail }) {
                         </Text>
                       )}
                     </View>
-                    <Text style={styles.cardTitle} numberOfLines={2}>{c.title}</Text>
                     <View style={styles.metaRow}>
-                      {!c.image && <StatusBadge status={c.status} />}
                       <Text style={styles.wardText}>{c.ward}</Text>
+                      {!c.image && <StatusBadge status={c.status} />}
                     </View>
                   </View>
                   <ChevronRight size={16} color="#d1d5db" />

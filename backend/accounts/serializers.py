@@ -7,14 +7,24 @@ User = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
     full_name = serializers.CharField(read_only=True)
+    profile_photo_url = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         fields = [
             'id', 'display_id', 'username', 'email', 'first_name', 'last_name',
             'full_name', 'role', 'ward', 'phone', 'category', 'joined_date',
+            'profile_photo_url', 'gender', 'dob', 'street', 'landmark',
         ]
         read_only_fields = ['id', 'display_id', 'joined_date']
+
+    def get_profile_photo_url(self, obj):
+        if not obj.profile_photo:
+            return None
+        request = self.context.get('request')
+        if request:
+            return request.build_absolute_uri(obj.profile_photo.url)
+        return obj.profile_photo.url
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -50,6 +60,13 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.set_password(password)
         user.save()
         return user
+
+
+class UpdateProfileSerializer(serializers.ModelSerializer):
+    """PATCH /auth/profile/ — phone is excluded (immutable after registration)."""
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'ward', 'gender', 'dob', 'street', 'landmark']
 
 
 class LoginSerializer(serializers.Serializer):

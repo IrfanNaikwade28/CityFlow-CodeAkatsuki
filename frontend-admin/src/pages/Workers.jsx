@@ -287,10 +287,18 @@ export default function Workers() {
           return (
             <Card key={worker.id} className="p-5">
               <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-full bg-[#1e3a8a] flex items-center justify-center text-white font-bold text-base">
-                    {workerName.charAt(0).toUpperCase()}
-                  </div>
+                  <div className="flex items-center gap-3">
+                    {worker.profile_photo_url ? (
+                      <img
+                        src={worker.profile_photo_url}
+                        alt={workerName}
+                        className="w-11 h-11 rounded-full object-cover border-2 border-gray-200"
+                      />
+                    ) : (
+                      <div className="w-11 h-11 rounded-full bg-[#1e3a8a] flex items-center justify-center text-white font-bold text-base">
+                        {workerName.charAt(0).toUpperCase()}
+                      </div>
+                    )}
                   <div>
                     <p className="font-semibold text-gray-900">{workerName}</p>
                     <p className="text-xs text-gray-500">{workerDisplayId} · {worker.ward}</p>

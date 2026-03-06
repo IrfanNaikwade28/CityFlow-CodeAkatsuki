@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, BackHandler } from 'react-native';
 import { ClientProvider, useClient } from '../context/ClientContext';
 import { Home, FileText, Radio, User, Map } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -94,6 +94,34 @@ function AppContent() {
     else { setPage('workerDash'); setWorkerTab('home'); }
   }, [user?.id, authReady]);
 
+  // Android hardware back button
+  useEffect(() => {
+    const backMap = {
+      // Citizen
+      report:       () => { setPage('home'); setActiveTab('home'); return true; },
+      success:      () => { setPage('home'); setActiveTab('home'); return true; },
+      detail:       () => { setPage('myComplaints'); setActiveTab('complaints'); return true; },
+      myComplaints: () => { setPage('home'); setActiveTab('home'); return true; },
+      feed:         () => { setPage('home'); setActiveTab('home'); return true; },
+      profile:      () => { setPage('home'); setActiveTab('home'); return true; },
+      home:         () => { BackHandler.exitApp(); return true; },
+      // Worker
+      taskDetail:   () => { setPage('workerDash'); setWorkerTab('home'); return true; },
+      workerFeed:   () => { setPage('workerDash'); setWorkerTab('home'); return true; },
+      workerMap:    () => { setPage('workerDash'); setWorkerTab('home'); return true; },
+      workerProfile:() => { setPage('workerDash'); setWorkerTab('home'); return true; },
+      workerDash:   () => { BackHandler.exitApp(); return true; },
+    };
+
+    const handler = () => {
+      const action = backMap[page];
+      return action ? action() : false;
+    };
+
+    const sub = BackHandler.addEventListener('hardwareBackPress', handler);
+    return () => sub.remove();
+  }, [page]);
+
   // Show splash while restoring session from SecureStore
   if (!authReady) {
     return (
@@ -172,6 +200,8 @@ function AppContent() {
             onReport={() => setPage('report')}
             onMyComplaints={goComplaints}
             onFeed={goFeed}
+            onProfile={goProfile}
+            onLogout={handleLogout}
             onComplaintDetail={(c) => { setSelectedComplaint(c); setPage('detail'); }}
           />
         )}

@@ -1,14 +1,22 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, ScrollView, Image,
+  Modal, TouchableWithoutFeedback,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Plus, MapPin, Bell, ChevronRight, TrendingUp, AlertCircle } from 'lucide-react-native';
+import { Plus, MapPin, Bell, ChevronRight, TrendingUp, AlertCircle, LogOut, User } from 'lucide-react-native';
 import { useClient } from '../context/ClientContext';
 import { categoryIcons, statusConfig } from '../data/mockData';
 import { issuesAPI } from '../services/api';
 
 const STATUS_ORDER = ['Submitted', 'Assigned', 'In Progress', 'Resolved', 'Closed'];
+
+function getGreeting() {
+  const hour = new Date().getHours();
+  if (hour < 12) return 'Good morning,';
+  if (hour < 17) return 'Good afternoon,';
+  return 'Good evening,';
+}
 
 const CAT_COLORS = {
   Road:               { bg: '#ffedd5', text: '#c2410c' },
@@ -29,13 +37,16 @@ function StatusBadge({ status }) {
   );
 }
 
-export default function CitizenHome({ onReport, onMyComplaints, onFeed, onComplaintDetail }) {
+export default function CitizenHome({ onReport, onMyComplaints, onFeed, onComplaintDetail, onProfile, onLogout }) {
   const { user, myComplaints } = useClient();
   const open = myComplaints.filter(c => !['Resolved', 'Closed'].includes(c.status)).length;
   const resolved = myComplaints.filter(c => ['Resolved', 'Closed'].includes(c.status)).length;
   const categories = ['Road', 'Water', 'Electricity', 'Garbage', 'Traffic', 'Public Facilities'];
 
   const [nearbyIssues, setNearbyIssues] = useState([]);
+  const [avatarMenuVisible, setAvatarMenuVisible] = useState(false);
+  const avatarRef = useRef(null);
+  const [avatarPos, setAvatarPos] = useState({ top: 0, right: 0 });
 
   useEffect(() => {
     issuesAPI.list({ is_public: true, page_size: 3 })
@@ -46,6 +57,17 @@ export default function CitizenHome({ onReport, onMyComplaints, onFeed, onCompla
       .catch(() => {});
   }, []);
 
+  const handleAvatarPress = () => {
+    if (avatarRef.current) {
+      avatarRef.current.measure((x, y, width, height, pageX, pageY) => {
+        setAvatarPos({ top: pageY + height + 6, right: 16 });
+        setAvatarMenuVisible(true);
+      });
+    } else {
+      setAvatarMenuVisible(true);
+    }
+  };
+
   return (
     <ScrollView style={styles.root} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
       {/* Header */}
@@ -55,17 +77,26 @@ export default function CitizenHome({ onReport, onMyComplaints, onFeed, onCompla
         <View style={styles.decCircle2} />
 
         <View style={styles.headerTop}>
-          <View>
-            <Text style={styles.greetingLabel}>Good morning,</Text>
-            <Text style={styles.greetingName}>{user?.name?.split(' ')[0]}</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.greetingLabel}>{getGreeting()}</Text>
+            <Text style={styles.greetingName}>{user?.name}</Text>
           </View>
           <View style={styles.headerActions}>
             <TouchableOpacity style={styles.iconBtn}>
               <Bell size={18} color="#fff" />
             </TouchableOpacity>
-            <View style={styles.avatarCircle}>
-              <Text style={styles.avatarText}>{user?.name?.charAt(0)}</Text>
-            </View>
+            <TouchableOpacity
+              ref={avatarRef}
+              style={styles.avatarCircle}
+              onPress={handleAvatarPress}
+              activeOpacity={0.8}
+            >
+              {user?.profilePhoto ? (
+                <Image source={{ uri: user.profilePhoto }} style={styles.avatarPhoto} />
+              ) : (
+                <Text style={styles.avatarText}>{user?.name?.charAt(0)?.toUpperCase()}</Text>
+              )}
+            </TouchableOpacity>
           </View>
         </View>
         <View style={styles.wardRow}>
@@ -73,6 +104,36 @@ export default function CitizenHome({ onReport, onMyComplaints, onFeed, onCompla
           <Text style={styles.wardText}>{user?.ward} · Ichalkaranji Municipal Corporation</Text>
         </View>
       </LinearGradient>
+
+      {/* Avatar dropdown menu */}
+      <Modal
+        visible={avatarMenuVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setAvatarMenuVisible(false)}
+      >
+        <TouchableWithoutFeedback onPress={() => setAvatarMenuVisible(false)}>
+          <View style={StyleSheet.absoluteFill}>
+            <View style={[styles.avatarMenu, { top: avatarPos.top, right: avatarPos.right }]}>
+              <TouchableOpacity
+                style={styles.avatarMenuItem}
+                onPress={() => { setAvatarMenuVisible(false); onProfile && onProfile(); }}
+              >
+                <User size={15} color="#374151" />
+                <Text style={styles.avatarMenuItemText}>Profile</Text>
+              </TouchableOpacity>
+              <View style={styles.avatarMenuDivider} />
+              <TouchableOpacity
+                style={styles.avatarMenuItem}
+                onPress={() => { setAvatarMenuVisible(false); onLogout && onLogout(); }}
+              >
+                <LogOut size={15} color="#ef4444" />
+                <Text style={[styles.avatarMenuItemText, { color: '#ef4444' }]}>Log Out</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
 
       {/* Stats card */}
       <View style={styles.statsCard}>
@@ -266,11 +327,12 @@ const styles = StyleSheet.create({
   decCircle2: { position: 'absolute', top: 16, right: -8, width: 64, height: 64, backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 32 },
   headerTop: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 4 },
   greetingLabel: { color: '#bfdbfe', fontSize: 13, fontWeight: '500' },
-  greetingName: { color: '#fff', fontSize: 24, fontWeight: '700', marginTop: 2 },
+  greetingName: { color: '#fff', fontSize: 20, fontWeight: '700', marginTop: 2 },
   headerActions: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   iconBtn: { width: 40, height: 40, backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
-  avatarCircle: { width: 40, height: 40, backgroundColor: 'rgba(255,255,255,0.3)', borderRadius: 20, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: 'rgba(255,255,255,0.5)' },
+  avatarCircle: { width: 40, height: 40, backgroundColor: 'rgba(255,255,255,0.3)', borderRadius: 20, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: 'rgba(255,255,255,0.5)', overflow: 'hidden' },
   avatarText: { color: '#fff', fontWeight: '700', fontSize: 15 },
+  avatarPhoto: { width: 40, height: 40, borderRadius: 20 },
   wardRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 8 },
   wardText: { color: '#bfdbfe', fontSize: 11 },
   statsCard: { marginHorizontal: 16, marginTop: -48, backgroundColor: '#fff', borderRadius: 16, padding: 16, flexDirection: 'row', shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.12, shadowRadius: 12, elevation: 8, zIndex: 10 },
@@ -323,4 +385,8 @@ const styles = StyleSheet.create({
   nearbyDistance: { fontSize: 11, color: '#9ca3af' },
   upvoteInline: { flexDirection: 'row', alignItems: 'center', gap: 3, marginLeft: 'auto' },
   nearbyUpvoteText: { fontSize: 11, color: '#9ca3af' },
+  avatarMenu: { position: 'absolute', backgroundColor: '#fff', borderRadius: 14, paddingVertical: 6, minWidth: 160, shadowColor: '#000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.15, shadowRadius: 24, elevation: 16, borderWidth: 1, borderColor: '#f3f4f6' },
+  avatarMenuItem: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 16, paddingVertical: 12 },
+  avatarMenuItemText: { fontSize: 13, fontWeight: '600', color: '#374151' },
+  avatarMenuDivider: { height: 1, backgroundColor: '#f3f4f6', marginHorizontal: 12 },
 });

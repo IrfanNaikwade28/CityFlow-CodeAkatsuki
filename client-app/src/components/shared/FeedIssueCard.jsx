@@ -144,9 +144,13 @@ export default function FeedIssueCard({ issue, readOnly = false, onUpvote, upvot
       <View style={styles.body}>
         {/* Reporter row */}
         <View style={styles.reporterRow}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>{(issue.reporterName || 'A').charAt(0).toUpperCase()}</Text>
-          </View>
+          {issue.reporterPhoto ? (
+            <Image source={{ uri: issue.reporterPhoto }} style={styles.avatarPhoto} />
+          ) : (
+            <View style={styles.avatar}>
+              <Text style={styles.avatarText}>{(issue.reporterName || 'A').charAt(0).toUpperCase()}</Text>
+            </View>
+          )}
           <View style={styles.reporterInfo}>
             <Text style={styles.reporterName}>{issue.reporterName || 'Anonymous'}</Text>
             <View style={styles.reporterMeta}>
@@ -336,6 +340,7 @@ const styles = StyleSheet.create({
   body: { padding: 16 },
   reporterRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 12 },
   avatar: { width: 32, height: 32, borderRadius: 16, backgroundColor: '#3b82f6', alignItems: 'center', justifyContent: 'center' },
+  avatarPhoto: { width: 32, height: 32, borderRadius: 16 },
   avatarText: { color: '#fff', fontSize: 13, fontWeight: '700' },
   reporterInfo: { flex: 1 },
   reporterName: { fontSize: 11, fontWeight: '700', color: '#1f2937' },
