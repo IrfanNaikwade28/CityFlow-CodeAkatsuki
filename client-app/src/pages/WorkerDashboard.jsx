@@ -1,6 +1,6 @@
 import {
   View, Text, StyleSheet, TouchableOpacity, ScrollView,
-  Modal, TouchableWithoutFeedback,
+  Modal, TouchableWithoutFeedback, Image,
 } from 'react-native';
 import { useState, useRef } from 'react';
 import { useClient } from '../context/ClientContext';
@@ -138,28 +138,39 @@ export default function WorkerDashboard({ onTaskDetail, onLogout, onProfile }) {
                   activeOpacity={0.95}
                 >
                   <View style={[styles.priorityBar, { backgroundColor: pc.bar }]} />
-                  <View style={styles.taskBody}>
-                    <View style={styles.taskRow}>
-                      <View style={styles.taskIcon}>
-                        <Text style={{ fontSize: 20 }}>{categoryIcons[task.category]}</Text>
-                      </View>
-                      <View style={{ flex: 1 }}>
-                        <View style={styles.taskTitleRow}>
-                          <Text style={styles.taskId}>{task.id}</Text>
-                          <View style={[styles.priorityChip, { backgroundColor: pc.badgeBg }]}>
-                            <Text style={[styles.priorityChipText, { color: pc.badgeText }]}>{task.priority}</Text>
-                          </View>
-                        </View>
-                        <Text style={styles.taskTitle} numberOfLines={2}>{task.title}</Text>
-                        <View style={styles.taskMeta}>
-                          <StatusBadge status={task.status} />
-                          <MapPin size={10} color="#9ca3af" />
-                          <Text style={styles.taskLocation} numberOfLines={1}>{task.location}</Text>
-                        </View>
-                      </View>
-                      <ChevronRight size={16} color="#d1d5db" />
-                    </View>
-                  </View>
+                   {/* Issue image — edge to edge */}
+                   {task.image ? (
+                     <Image
+                       source={{ uri: task.image }}
+                       style={styles.taskImage}
+                       resizeMode="cover"
+                     />
+                   ) : (
+                     <View style={styles.taskImagePlaceholder}>
+                       <Text style={{ fontSize: 32 }}>{categoryIcons[task.category]}</Text>
+                     </View>
+                   )}
+                   {/* Status + priority strip */}
+                   <View style={styles.taskStatusStrip}>
+                     <StatusBadge status={task.status} />
+                     <View style={[styles.priorityChip, { backgroundColor: pc.badgeBg }]}>
+                       <Text style={[styles.priorityChipText, { color: pc.badgeText }]}>{task.priority}</Text>
+                     </View>
+                   </View>
+                   {/* Info row */}
+                   <View style={styles.taskBody}>
+                     <View style={styles.taskRow}>
+                       <View style={{ flex: 1 }}>
+                         <Text style={styles.taskId}>{task.id}</Text>
+                         <Text style={styles.taskTitle} numberOfLines={2}>{task.title}</Text>
+                         <View style={styles.taskMeta}>
+                           <MapPin size={10} color="#9ca3af" />
+                           <Text style={styles.taskLocation} numberOfLines={1}>{task.location}</Text>
+                         </View>
+                       </View>
+                       <ChevronRight size={16} color="#d1d5db" />
+                     </View>
+                   </View>
                 </TouchableOpacity>
               );
             })}
@@ -271,11 +282,12 @@ const styles = StyleSheet.create({
   countBadgeText: { fontSize: 11, fontWeight: '600', color: '#c2410c' },
   taskCard: { backgroundColor: '#fff', borderRadius: 16, overflow: 'hidden', borderWidth: 1, borderColor: '#f3f4f6', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2 },
   priorityBar: { height: 4, width: '100%' },
-  taskBody: { padding: 16 },
+  taskImage: { width: '100%', height: 140 },
+  taskImagePlaceholder: { width: '100%', height: 100, backgroundColor: '#f3f4f6', alignItems: 'center', justifyContent: 'center' },
+  taskStatusStrip: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 14, paddingVertical: 8, backgroundColor: '#f8fafc', borderBottomWidth: 1, borderBottomColor: '#f1f5f9' },
+  taskBody: { padding: 14 },
   taskRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
-  taskIcon: { width: 44, height: 44, backgroundColor: '#f3f4f6', borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
-  taskTitleRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 2 },
-  taskId: { fontSize: 10, color: '#9ca3af', fontWeight: '500' },
+  taskId: { fontSize: 10, color: '#9ca3af', fontWeight: '500', marginBottom: 2 },
   priorityChip: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 20 },
   priorityChipText: { fontSize: 10, fontWeight: '600' },
   taskTitle: { fontSize: 13, fontWeight: '700', color: '#1f2937' },

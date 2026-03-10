@@ -1,7 +1,33 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { authAPI, issuesAPI, tokenStorage } from '../services/api';
+import { authAPI, issuesAPI, tokenStorage, BASE_URL } from '../services/api';
 
 const ClientContext = createContext();
+
+// ─── URL rewriter ─────────────────────────────────────────────────────────────
+// The backend builds image URLs using request.build_absolute_uri(), which embeds
+// whatever IP Django sees. If that differs from BASE_URL (e.g. different network
+// interface or hotspot), images silently fail. Rewrite every media URL so its
+// origin always matches the origin the app is actually talking to.
+const _serverOrigin = (() => {
+  try {
+    // BASE_URL is e.g. "http://192.168.65.141:8000/api" → origin = "http://192.168.65.141:8000"
+    const url = new URL(BASE_URL);
+    return url.origin; // "http://192.168.65.141:8000"
+  } catch {
+    return null;
+  }
+})();
+
+const rewriteMediaUrl = (url) => {
+  if (!url || !_serverOrigin) return url;
+  try {
+    const parsed = new URL(url);
+    // Replace scheme+host+port with the origin the app is configured to use
+    return _serverOrigin + parsed.pathname + parsed.search;
+  } catch {
+    return url;
+  }
+};
 
 // ─── Shape helpers ────────────────────────────────────────────────────────────
 // Normalise a backend issue object to the shape the UI expects.
@@ -21,13 +47,13 @@ const normaliseIssue = (issue) => ({
   isPublic:        issue.is_public,
   upvotes:         issue.upvotes,
   upvotedByMe:     issue.upvoted_by_me,
-  image:           issue.image_url,
-  completionPhoto: issue.completion_photo_url,
+  image:           rewriteMediaUrl(issue.image_url),
+  completionPhoto: rewriteMediaUrl(issue.completion_photo_url),
   aiScore:         issue.ai_completion_score,
   aiVerdict:       issue.ai_completion_verdict,
   reportedBy:      issue.reported_by,
   reporterName:    issue.reported_by_detail?.name || '',
-  reporterPhoto:   issue.reported_by_detail?.profile_photo_url || null,
+  reporterPhoto:   rewriteMediaUrl(issue.reported_by_detail?.profile_photo_url || null),
   assignedTo:      issue.assigned_to_detail?.id || null,
   assignedToName:  issue.assigned_to_detail?.name || null,
   reportedAt:      issue.reported_at,
@@ -59,7 +85,7 @@ const normaliseUser = (data, tokens) => ({
   ward:         data.ward || '',
   category:     data.category || '',
   joinedDate:   data.joined_date,
-  profilePhoto: data.profile_photo_url || null,
+  profilePhoto: rewriteMediaUrl(data.profile_photo_url || null),
   gender:       data.gender   || '',
   dob:          data.dob      || '',   // 'YYYY-MM-DD' or ''
   street:       data.street   || '',
