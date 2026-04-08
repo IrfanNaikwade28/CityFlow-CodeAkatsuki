@@ -255,7 +255,7 @@ export default function GarbageMonitoring() {
 
       {/* Geographic SVG Map */}
       <Card className="p-5">
-        <h3 className="text-sm font-semibold text-gray-800 mb-1">Geographic Bin Map — Ichalkaranji</h3>
+        <h3 className="text-sm font-semibold text-gray-800 mb-1">Geographic Bin Map — Pune</h3>
         <p className="text-xs text-gray-400 mb-4">Actual lat/lng positions · Click a dot to select bin</p>
         <div className="relative bg-gradient-to-br from-blue-50 to-slate-100 rounded-xl overflow-hidden border border-gray-200">
           <svg
@@ -272,7 +272,7 @@ export default function GarbageMonitoring() {
             ))}
 
             {/* City label */}
-            <text x="10" y="18" fill="#94a3b8" fontSize="11" fontFamily="sans-serif">Ichalkaranji Municipal Area</text>
+            <text x="10" y="18" fill="#94a3b8" fontSize="11" fontFamily="sans-serif">Pune Municipal Area</text>
 
             {/* Lat/Lng corner labels */}
             <text x="4" y="396" fill="#cbd5e1" fontSize="9" fontFamily="sans-serif">16.685°N 74.455°E</text>
@@ -280,7 +280,7 @@ export default function GarbageMonitoring() {
 
             {/* Bin dots — geo-projected */}
             {bins.map(bin => {
-              // Ichalkaranji bounding box
+              // Pune bounding box
               const LAT_MIN = 16.685, LAT_MAX = 16.705;
               const LNG_MIN = 74.455, LNG_MAX = 74.470;
               const SVG_W = 600, SVG_H = 400;

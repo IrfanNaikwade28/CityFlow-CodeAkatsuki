@@ -110,7 +110,7 @@ export default function Settings() {
         <div className="space-y-2 text-sm">
           {[
             { label: 'Platform', value: 'CityFlow v1.0' },
-            { label: 'Municipality', value: 'Ichalkaranji Municipal Corporation' },
+            { label: 'Municipality', value: 'Pune Municipal Corporation' },
             { label: 'Mode', value: 'Live API' },
             { label: 'Backend', value: 'Django REST Framework — http://localhost:8000' },
           ].map(row => (

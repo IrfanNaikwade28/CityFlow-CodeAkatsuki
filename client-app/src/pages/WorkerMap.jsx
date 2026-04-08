@@ -71,16 +71,16 @@ function optimiseRoute(workerLat, workerLng, tasks) {
   return [...ordered, ...done.map(t => ({ ...t, distFromPrev: null }))];
 }
 
-// ─── Fallback coords for known Ichalkaranji locations ─────────────────────────
+// ─── Fallback coords for known Pune locations ─────────────────────────────────
 const LOCATION_COORDS = {
-  'Nehru Chowk, Main Road, Ichalkaranji': { lat: 18.5204, lng: 73.8567 },
+  'Nehru Chowk, Main Road, Pune':         { lat: 18.5204, lng: 73.8567 },
   'Sadar Bazar, Near Textile Market':      { lat: 18.5100, lng: 73.8700 },
-  'Near Ichalkaranji Bus Stand':           { lat: 18.5590, lng: 73.7868 },
+  'Near Pune Bus Stand':                   { lat: 18.5590, lng: 73.7868 },
   'Kasba Peth Road, Near Old Market':      { lat: 18.5362, lng: 73.8940 },
 };
 
 const DEFAULT_WORKER = { lat: 18.535, lng: 73.855 };
-const CITY_CENTER    = { lat: 16.6925, lng: 74.4191 }; // Ichalkaranji centre
+const CITY_CENTER    = { lat: 18.5204, lng: 73.8567 }; // Pune centre
 const PRIORITY_COLORS = { High: '#ef4444', Medium: '#f97316', Low: '#22c55e' };
 
 // Parse "16.6925° N, 74.4191° E" strings stored as location_text when lat/lng is null

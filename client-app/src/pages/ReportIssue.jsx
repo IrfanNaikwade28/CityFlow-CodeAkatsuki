@@ -26,7 +26,7 @@ export default function ReportIssue({ onBack, onSuccess }) {
     category: '',
     title: '',
     description: '',
-    location: (user?.ward || '') + ', Ichalkaranji',
+    location: (user?.ward || '') + ', Pune',
     ward: user?.ward || 'Ward 5',
     isPublic: true,
   });
@@ -56,12 +56,7 @@ export default function ReportIssue({ onBack, onSuccess }) {
       const { data } = await aiAPI.detectIssue(formData);
       console.log('[AI] Response:', JSON.stringify(data));
       setAiResult(data);
-      if (!data.ai_available) {
-        // Backend AI failed — show error so user fills in manually
-        setAiState('error');
-        return;
-      }
-      // Always overwrite category, title and description with AI result
+      // Always attempt to use AI (or fallback) result if provided
       setForm(p => ({
         ...p,
         category:    data.category    || p.category,

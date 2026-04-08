@@ -28,7 +28,7 @@ const adminNotices = [
   {
     id: 'N-003', type: 'Announcement',
     title: 'CivicFlow App Now Available',
-    body: 'Citizens of Ichalkaranji can now report civic issues via the CivicFlow mobile app on Play Store & App Store.',
+    body: 'Citizens of Pune can now report civic issues via the CivicFlow mobile app on Play Store & App Store.',
     ward: 'All Wards', postedAt: '2026-02-20T10:00:00', upvotes: 34,
   },
 ];

@@ -14,9 +14,9 @@ const demoCredentials = {
     { name: 'Amol Kumbhar',   email: 'amol@example.com' },
   ],
   worker: [
-    { name: 'Dnyaneshwar Jadhav', email: 'dnyanesh@ichalkaranji.gov.in' },
-    { name: 'Vishwas Kamble',     email: 'vishwas@ichalkaranji.gov.in' },
-    { name: 'Santosh Chougule',   email: 'santosh@ichalkaranji.gov.in' },
+    { name: 'Dnyaneshwar Jadhav', email: 'dnyanesh@pune.gov.in' },
+    { name: 'Vishwas Kamble',     email: 'vishwas@pune.gov.in' },
+    { name: 'Santosh Chougule',   email: 'santosh@pune.gov.in' },
   ],
 };
 
@@ -80,7 +80,7 @@ export default function Login({ onRegister }) {
               style={styles.input}
               value={email}
               onChangeText={setEmail}
-              placeholder={role === 'citizen' ? 'rajesh@example.com' : 'dnyanesh@ichalkaranji.gov.in'}
+              placeholder={role === 'citizen' ? 'rajesh@example.com' : 'dnyanesh@pune.gov.in'}
               placeholderTextColor="#9ca3af"
               keyboardType="email-address"
               autoCapitalize="none"

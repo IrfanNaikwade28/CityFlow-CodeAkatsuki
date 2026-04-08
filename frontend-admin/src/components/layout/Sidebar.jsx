@@ -65,7 +65,7 @@ export default function Sidebar({ open, onClose }) {
 
         {/* Footer */}
         <div className="px-6 py-4 border-t border-blue-700">
-          <p className="text-blue-400 text-xs">Ichalkaranji Municipal Corporation</p>
+          <p className="text-blue-400 text-xs">Pune Municipal Corporation</p>
           <p className="text-blue-500 text-xs">v1.0.0 Demo</p>
         </div>
       </aside>

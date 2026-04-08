@@ -4,7 +4,7 @@ import * as SecureStore from 'expo-secure-store';
 // ─── Base URL ────────────────────────────────────────────────────────────────
 // Change this to your machine's LAN IP when testing on a physical device.
 // localhost / 127.0.0.1 only works on Android emulator via 10.0.2.2.
-export const BASE_URL = 'https://cityflow-twpz.onrender.com/api';
+export const BASE_URL = 'http://10.57.230.146:8000/api';
 
 // ─── Axios instance ──────────────────────────────────────────────────────────
 const api = axios.create({

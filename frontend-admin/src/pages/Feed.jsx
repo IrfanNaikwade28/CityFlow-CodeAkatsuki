@@ -40,7 +40,7 @@ const STEPS = ['Submitted', 'Assigned', 'In Progress', 'Resolved'];
 
 const initialNotices = [
   { id: 'N-001', type: 'Maintenance', title: 'Scheduled Water Supply Interruption', body: 'Water supply in Ward 7, 9 and 3 will be interrupted on Feb 23rd from 9 AM to 2 PM due to pipeline maintenance work at Kasba Peth junction.', ward: 'Ward 7, Ward 9, Ward 3', postedAt: '2026-02-21T08:00:00', postedBy: 'Admin', upvotes: 12 },
-  { id: 'N-002', type: 'Announcement', title: 'New Complaint Portal Launch', body: 'Citizens of Ichalkaranji can now report civic issues directly via the CityFlow mobile app. Download and register today.', ward: 'All Wards', postedAt: '2026-02-20T10:00:00', postedBy: 'Commissioner', upvotes: 34 },
+  { id: 'N-002', type: 'Announcement', title: 'New Complaint Portal Launch', body: 'Citizens of Pune can now report civic issues directly via the CityFlow mobile app. Download and register today.', ward: 'All Wards', postedAt: '2026-02-20T10:00:00', postedBy: 'Commissioner', upvotes: 34 },
   { id: 'N-003', type: 'Alert', title: 'Open Manhole on Panchganga Riverside — Avoid Area', body: 'A dangerous open manhole has been reported on the Panchganga Riverside path (Ward 3). Citizens are advised to avoid the stretch until repaired.', ward: 'Ward 3', postedAt: '2026-02-21T07:30:00', postedBy: 'Admin', upvotes: 56 },
 ];
 

@@ -31,7 +31,7 @@ export default function Wards() {
                   </div>
                   <div>
                     <p className="font-bold text-gray-900">{ward.id}</p>
-                    <p className="text-xs text-gray-500">Ichalkaranji Municipal</p>
+                    <p className="text-xs text-gray-500">Pune Municipal</p>
                   </div>
                 </div>
                 <span className={`text-sm font-bold ${resRate >= 70 ? 'text-green-600' : resRate >= 50 ? 'text-yellow-600' : 'text-red-600'}`}>

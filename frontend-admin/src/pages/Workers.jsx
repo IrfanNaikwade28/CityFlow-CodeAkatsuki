@@ -55,7 +55,7 @@ function WorkerModal({ initial, onSave, onClose, isEdit, loading }) {
               <input
                 type="email" value={form.email}
                 onChange={e => set('email', e.target.value)}
-                placeholder="worker@ichalkaranji.gov.in"
+                placeholder="worker@pune.gov.in"
                 className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-blue-500"
               />
             </div>

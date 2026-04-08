@@ -1,4 +1,4 @@
-// Mock data for CivicFlow Admin Dashboard — Ichalkaranji, Kolhapur, Maharashtra
+// Mock data for CivicFlow Admin Dashboard — Pune, Maharashtra
 
 export const mockIssues = [
   {

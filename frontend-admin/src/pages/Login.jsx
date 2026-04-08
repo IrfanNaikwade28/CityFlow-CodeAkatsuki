@@ -31,7 +31,7 @@ export default function Login() {
             <Shield size={32} className="text-white" />
           </div>
           <h1 className="text-2xl font-bold text-white">CityFlow Admin</h1>
-          <p className="text-blue-300 text-sm mt-1">Ichalkaranji Municipal Corporation</p>
+          <p className="text-blue-300 text-sm mt-1">Pune Municipal Corporation</p>
         </div>
 
         {/* Card */}
@@ -79,7 +79,7 @@ export default function Login() {
         </div>
 
         <p className="text-center text-blue-400/60 text-xs mt-6">
-          CityFlow v1.0 · Ichalkaranji Municipal Corporation
+          CityFlow v1.0 · Pune Municipal Corporation
         </p>
       </div>
     </div>

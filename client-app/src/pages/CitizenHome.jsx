@@ -101,7 +101,7 @@ export default function CitizenHome({ onReport, onMyComplaints, onFeed, onCompla
         </View>
         <View style={styles.wardRow}>
           <MapPin size={12} color="#93c5fd" />
-          <Text style={styles.wardText}>{user?.ward} · Ichalkaranji Municipal Corporation</Text>
+          <Text style={styles.wardText}>{user?.ward} · Pune Municipal Corporation</Text>
         </View>
       </LinearGradient>
 
